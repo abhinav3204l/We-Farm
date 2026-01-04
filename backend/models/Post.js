@@ -6,13 +6,13 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    farmer: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    role: {
+    author: {
       type: String,
-      default: "farmer",
+      default: "Farmer",
+    },
+    likes: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }
