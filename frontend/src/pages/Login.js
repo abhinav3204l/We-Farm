@@ -1,75 +1,75 @@
 import React, { useState } from "react";
-import axios from "axios";
+import API from "../api";
 import "./Login.css";
-import bg from "../assets/farmer-bg.jpg";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
     if (!email || !password) {
       alert("Please enter email and password");
       return;
     }
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        { email, password }
-      );
+      setLoading(true);
 
-      // Save token in browser
+      const res = await API.post("/auth/login", {
+        email,
+        password,
+      });
+
+      // 🔐 SAVE LOGIN SESSION
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
 
-      alert("Login successful!");
-
+      // 🚀 REDIRECT BASED ON ROLE
       if (res.data.role === "farmer") {
-          window.location.href = "/farmer";
-        } else {
-            window.location.href = "/dashboard";
-}
-
-
-      // later we will redirect to dashboard
-      // window.location.href = "/dashboard";
-    } catch (error) {
+        window.location.href = "/farmer";
+      } else {
+        window.location.href = "/dashboard";
+      }
+    } catch (err) {
+      console.error(err);
       alert("Invalid email or password");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div
-      className="login-container"
-      style={{ backgroundImage: `url(${bg})` }}
-    >
+    <div className="login-container">
       <div className="login-card">
         <h1>🌱 WeFarm</h1>
-        <p>Connecting Farmers, Youth & Consumers</p>
+        <p>Farmer Community Platform</p>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <form onSubmit={handleLogin}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <button onClick={handleLogin}>Login</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
 
-        <p style={{ marginTop: "16px", fontSize: "14px" }}>
-          Don’t have an account?{" "}
-          <a
-            href="/register"
-            style={{ color: "#2e7d32", fontWeight: "bold" }}
-          >
+        <p style={{ marginTop: "12px", fontSize: "14px" }}>
+          New here?{" "}
+          <a href="/register" style={{ color: "#2e7d32" }}>
             Register
           </a>
         </p>
