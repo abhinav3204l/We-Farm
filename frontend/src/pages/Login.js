@@ -1,40 +1,31 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api";
 import "./Login.css";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    if (!email || !password) {
-      alert("Please enter email and password");
-      return;
-    }
-
     try {
-      setLoading(true);
-
       const res = await API.post("/auth/login", {
         email,
         password,
       });
 
-      // 🔐 SAVE LOGIN SESSION
+      // SAVE SESSION
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
 
-      // 🚀 REDIRECT BASED ON ROLE
-      window.location.href = "/farmer";
-
+      // SPA NAVIGATION (NO PAGE RELOAD)
+      navigate("/farmer");
     } catch (err) {
-      console.error(err);
       alert("Invalid email or password");
-    } finally {
-      setLoading(false);
+      console.error(err);
     }
   };
 
@@ -50,6 +41,7 @@ function Login() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
 
           <input
@@ -57,18 +49,14 @@ function Login() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
 
-          <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
+          <button type="submit">Login</button>
         </form>
 
-        <p style={{ marginTop: "12px", fontSize: "14px" }}>
-          New here?{" "}
-          <a href="/register" style={{ color: "#2e7d32" }}>
-            Register
-          </a>
+        <p style={{ marginTop: "10px" }}>
+          New user? <a href="/register">Register</a>
         </p>
       </div>
     </div>

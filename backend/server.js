@@ -8,7 +8,18 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors());
+const cors = require("cors");
+
+app.use(
+  cors({
+    origin: [
+      "https://wefarm-ten.vercel.app",
+      "https://www.wefarm-ten.vercel.app"
+    ],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
 app.use("/api/auth", require("./routes/authRoutes"));
