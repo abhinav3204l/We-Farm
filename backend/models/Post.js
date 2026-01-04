@@ -2,20 +2,11 @@ const mongoose = require("mongoose");
 
 const postSchema = new mongoose.Schema(
   {
-    content: {
-      type: String,
-      required: true,
-    },
-    author: {
-      type: String,
-      default: "Farmer",
-    },
-    likes: {
-      type: Number,
-      default: 0,
-    },
+    content: String,
+    author: String,
+    likes: Number,
   },
-  { timestamps: true }
+  { timestamps: true, collection: "posts" } // 👈 FORCE collection name
 );
 
 module.exports = mongoose.model("Post", postSchema);
