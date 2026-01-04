@@ -1,32 +1,24 @@
 const express = require("express");
+const router = express.Router();
 const Post = require("../models/Post");
 
-const router = express.Router(); // 
-
-// CREATE A POST
-router.post("/", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const { content } = req.body;
-
-    if (!content) {
-      return res.status(400).json({ message: "Post content is required" });
-    }
-
-    const post = await Post.create({
-      content,
-    });
-
-    res.status(201).json(post);
+    const posts = await Post.find().sort({ createdAt: -1 });
+    res.json(posts);
   } catch (err) {
-    console.error(err);
-    res.status(400).json({ message: "Failed to create post" });
+    res.status(500).json({ message: "Failed to fetch posts" });
   }
 });
 
-// GET ALL POSTS
-router.get("/", async (req, res) => {
-  const posts = await Post.find().sort({ createdAt: -1 });
-  res.json(posts);
+router.post("/", async (req, res) => {
+  try {
+    const post = new Post({ content: req.body.content });
+    await post.save();
+    res.status(201).json(post);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to create post" });
+  }
 });
 
 module.exports = router;
