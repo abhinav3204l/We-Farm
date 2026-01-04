@@ -1,0 +1,23 @@
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: white;
+  border-top: 1px solid #e6ecf0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  font-size: 14px;
+  z-index: 100;
+}
+
+.bottom-nav a {
+  text-decoration: none;
+  color: #657786;
+}
+
+.bottom-nav a:hover {
+  color: #2e7d32;
+}
