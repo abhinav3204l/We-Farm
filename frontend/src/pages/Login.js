@@ -28,11 +28,8 @@ function Login() {
       localStorage.setItem("role", res.data.role);
 
       // 🚀 REDIRECT BASED ON ROLE
-      if (res.data.role === "farmer") {
-        window.location.href = "/farmer";
-      } else {
-        window.location.href = "/dashboard";
-      }
+      window.location.href = "/farmer";
+
     } catch (err) {
       console.error(err);
       alert("Invalid email or password");
