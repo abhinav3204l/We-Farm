@@ -1,15 +1,22 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const postSchema = new mongoose.Schema(
+const PostSchema = new mongoose.Schema(
   {
-    content: String,
-    role: { type: String, default: "farmer" },
-    likes: { type: Number, default: 0 },
+    content: {
+      type: String,
+      required: true,
+    },
+    role: {
+      type: String,
+      required: true,
+    },
+    likes: {
+      type: Number,
+      default: 0,
+    },
   },
-  {
-    timestamps: true,
-    collection: "posts",
-  }
+  { timestamps: true }
 );
 
-module.exports = mongoose.model("Post", postSchema);
+export default mongoose.model("Post", PostSchema);
+// Collection name will be: posts

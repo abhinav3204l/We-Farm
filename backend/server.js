@@ -14,7 +14,6 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      "http://localhost:3000",
       "https://wefarm-ten.vercel.app",
       "https://www.wefarm-ten.vercel.app",
     ],

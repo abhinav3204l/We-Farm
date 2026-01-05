@@ -1,42 +1,37 @@
-const User = require("../models/user.js");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+import Post from "../models/Post.js";
 
-exports.register = async (req, res) => {
-  const { name, email, password, role } = req.body;
-
+// GET all posts
+export const getPosts = async (req, res) => {
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role,
-    });
-
-    res.status(201).json({ message: "User registered successfully" });
+    const posts = await Post.find().sort({ createdAt: -1 });
+    res.status(200).json(posts);
   } catch (error) {
-    res.status(400).json({ message: "User already exists" });
+    console.error("GET POSTS ERROR:", error);
+    res.status(500).json({ message: "Failed to fetch posts" });
   }
 };
 
-exports.login = async (req, res) => {
-  const { email, password } = req.body;
+// CREATE a post
+export const createPost = async (req, res) => {
+  try {
+    console.log("POST BODY:", req.body); // 🔥 DEBUG LINE
 
-  const user = await User.findOne({ email });
-  if (!user)
-    return res.status(400).json({ message: "User not found" });
+    const { content, role } = req.body;
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch)
-    return res.status(400).json({ message: "Invalid credentials" });
+    if (!content || !role) {
+      return res.status(400).json({ message: "Content and role required" });
+    }
 
-  const token = jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" }
-  );
+    const newPost = new Post({
+      content,
+      role,
+    });
 
-  res.json({ token, role: user.role });
+    await newPost.save();
+
+    res.status(201).json(newPost);
+  } catch (error) {
+    console.error("CREATE POST ERROR:", error);
+    res.status(500).json({ message: "Failed to create post" });
+  }
 };

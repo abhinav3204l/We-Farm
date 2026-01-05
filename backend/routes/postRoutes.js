@@ -7,6 +7,7 @@ const Post = require("../models/Post");
 // ==============================
 router.get("/", async (req, res) => {
   try {
+    console.log("GET /api/posts called"); // 🔥 DEBUG
     const posts = await Post.find().sort({ createdAt: -1 });
     res.json(posts);
   } catch (error) {
@@ -20,6 +21,8 @@ router.get("/", async (req, res) => {
 // ==============================
 router.post("/", async (req, res) => {
   try {
+    console.log("POST BODY:", req.body); // 🔥 DEBUG
+
     const { content, role } = req.body;
 
     if (!content || !content.trim()) {
