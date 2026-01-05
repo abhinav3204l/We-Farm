@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const PostSchema = new mongoose.Schema(
   {
@@ -8,7 +8,7 @@ const PostSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      required: true,
+      default: "farmer",
     },
     likes: {
       type: Number,
@@ -18,5 +18,4 @@ const PostSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Post", PostSchema);
-// Collection name will be: posts
+module.exports = mongoose.model("Post", PostSchema);
