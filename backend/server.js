@@ -17,6 +17,8 @@ app.use(
       "https://wefarm-ten.vercel.app",
       "https://www.wefarm-ten.vercel.app",
     ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   })
 );
 
