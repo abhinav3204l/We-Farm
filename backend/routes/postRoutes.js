@@ -2,46 +2,59 @@ const express = require("express");
 const router = express.Router();
 const Post = require("../models/Post");
 
-// ✅ Get all posts
+// ==============================
+// GET all posts
+// ==============================
 router.get("/", async (req, res) => {
   try {
     const posts = await Post.find().sort({ createdAt: -1 });
     res.json(posts);
-  } catch (err) {
-    console.error("POST FETCH ERROR 👉", err);
-    res.status(500).json({
-      message: "Failed to fetch posts",
-      error: err.message,
-    });
+  } catch (error) {
+    console.error("Fetch posts error:", error.message);
+    res.status(500).json({ message: "Failed to fetch posts" });
   }
 });
 
-
-// ✅ Create a post
+// ==============================
+// CREATE a new post
+// ==============================
 router.post("/", async (req, res) => {
   try {
-    const { content, author } = req.body;
+    const { content, role } = req.body;
 
-    const post = new Post({
+    if (!content || !content.trim()) {
+      return res.status(400).json({ message: "Post content is required" });
+    }
+
+    const post = await Post.create({
       content,
-      author: author || "Farmer",
+      role: role || "farmer",
     });
 
-    await post.save();
     res.status(201).json(post);
-  } catch (err) {
+  } catch (error) {
+    console.error("Create post error:", error.message);
     res.status(500).json({ message: "Failed to create post" });
   }
 });
 
-// ✅ Like a post
+// ==============================
+// LIKE a post
+// ==============================
 router.put("/:id/like", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    post.likes += 1;
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    post.likes = (post.likes || 0) + 1;
     await post.save();
+
     res.json({ likes: post.likes });
-  } catch (err) {
+  } catch (error) {
+    console.error("Like post error:", error.message);
     res.status(500).json({ message: "Failed to like post" });
   }
 });
