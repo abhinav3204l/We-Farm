@@ -2,9 +2,8 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "172.20.10.7", // ✅ BACK TO WEB MODE
+  baseURL: "https://wefarm-backend.onrender.com",
 });
-
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
 
