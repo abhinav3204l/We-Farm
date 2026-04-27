@@ -1,64 +1,86 @@
 const express = require("express");
-const router = express.Router();
 const Post = require("../models/Post");
+const User = require("../models/Account");
+const auth = require("../middleware/auth");
 
-// ==============================
-// GET all posts
-// ==============================
-router.get("/", async (req, res) => {
+const router = express.Router();
+
+/* 🔹 USER STATS */
+router.get("/stats/user/:userId", async (req, res) => {
   try {
-    console.log("GET /api/posts called"); // 🔥 DEBUG
-    const posts = await Post.find().sort({ createdAt: -1 });
-    res.json(posts);
-  } catch (error) {
-    console.error("Fetch posts error:", error.message);
-    res.status(500).json({ message: "Failed to fetch posts" });
+    const posts = await Post.find({ user: req.params.userId });
+
+    const totalPosts = posts.length;
+    const totalLikes = posts.reduce((s, p) => s + p.likes, 0);
+    const totalComments = posts.reduce(
+      (s, p) => s + (p.comments?.length || 0),
+      0
+    );
+
+    res.json({ totalPosts, totalLikes, totalComments });
+  } catch {
+    res.status(500).json({ message: "Stats failed" });
   }
 });
 
-// ==============================
-// CREATE a new post
-// ==============================
-router.post("/", async (req, res) => {
+/* 🔹 GET POSTS */
+router.get("/", async (req, res) => {
+  const posts = await Post.find()
+    .populate("user", "name badge avatar")
+    .sort({ createdAt: -1 });
+
+  res.json(posts);
+});
+
+/* 🔹 CREATE POST */
+router.post("/", auth, async (req, res) => {
+  const post = await Post.create({
+    content: req.body.content,
+    user: req.user.id,
+  });
+
+  res.json(post);
+});
+
+/* 🔹 LIKE + AUTO EXPERT PROMOTION */
+router.put("/:id/like", async (req, res) => {
+  const post = await Post.findById(req.params.id);
+  post.likes++;
+  await post.save();
+
+  const posts = await Post.find({ user: post.user });
+  const totalLikes = posts.reduce((s, p) => s + p.likes, 0);
+
+  if (totalLikes >= 50) {
+    await User.findByIdAndUpdate(post.user, {
+      badge: "expert",
+    });
+  }
+
+  res.json(post);
+});
+
+router.post("/:id/comment", async (req, res) => {
   try {
-    console.log("POST BODY:", req.body); // 🔥 DEBUG
+    const { text } = req.body;
 
-    const { content, role } = req.body;
-
-    if (!content || !content.trim()) {
-      return res.status(400).json({ message: "Post content is required" });
+    if (!text || !text.trim()) {
+      return res.status(400).json({ message: "Comment cannot be empty" });
     }
 
-    const post = await Post.create({
-      content,
-      role: role || "farmer",
-    });
-
-    res.status(201).json(post);
-  } catch (error) {
-    console.error("Create post error:", error.message);
-    res.status(500).json({ message: "Failed to create post" });
-  }
-});
-
-// ==============================
-// LIKE a post
-// ==============================
-router.put("/:id/like", async (req, res) => {
-  try {
     const post = await Post.findById(req.params.id);
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    post.likes = (post.likes || 0) + 1;
+    post.comments.push({ text });
     await post.save();
 
-    res.json({ likes: post.likes });
-  } catch (error) {
-    console.error("Like post error:", error.message);
-    res.status(500).json({ message: "Failed to like post" });
+    res.json(post);
+  } catch (err) {
+    console.error("Add comment error:", err);
+    res.status(500).json({ message: "Failed to add comment" });
   }
 });
 

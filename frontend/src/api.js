@@ -1,10 +1,18 @@
+
 import axios from "axios";
 
-console.log("✅ USING CORRECT api.js");
-
 const API = axios.create({
-  baseURL: "https://we-farm.onrender.com/api",// force rebuild
+  baseURL: "172.20.10.7", // ✅ BACK TO WEB MODE
+});
 
+API.interceptors.request.use((req) => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return req;
 });
 
 export default API;

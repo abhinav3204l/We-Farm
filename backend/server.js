@@ -3,36 +3,34 @@ const cors = require("cors");
 require("dotenv").config();
 require("./config/db");
 
-const authRoutes = require("./routes/authRoutes");
-const postRoutes = require("./routes/postRoutes");
+const authRoutes        = require("./routes/authRoutes");
+const postRoutes        = require("./routes/postRoutes");
+const chatRoutes        = require("./routes/chatRoutes");
+const aiRoutes          = require("./routes/aiRoutes");
+const marketplaceRoutes = require("./routes/marketplaceRoutes");
 
-// ✅ CREATE APP FIRST
 const app = express();
 
-// ✅ MIDDLEWARE
+app.use(cors({
+  origin: "*"
+}));
 app.use(express.json());
-app.use(
-  cors({
-    origin: [
-      "https://wefarm-ten.vercel.app",
-      "https://www.wefarm-ten.vercel.app",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+app.use(express.urlencoded({ extended: true }));
 
-// ✅ ROUTES (AFTER app IS CREATED)
-app.use("/api/auth", authRoutes);
-app.use("/api/posts", postRoutes);
+app.use("/api/auth",        authRoutes);
+app.use("/api/posts",       postRoutes);
+app.use("/api/chat",        chatRoutes);
+app.use("/api/ai",          aiRoutes);
+app.use("/api/marketplace", marketplaceRoutes);
 
-// ✅ HEALTH CHECK
-app.get("/", (req, res) => {
-  res.send("WeFarm backend is running 🚀");
+app.get("/", (req, res) => res.send("WeFarm API is running..."));
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Something went wrong" });
 });
 
-// ✅ START SERVER
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Backend running on http://localhost:${PORT}`);
 });
