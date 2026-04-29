@@ -1,16 +1,12 @@
-
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://wefarm-backend.onrender.com",
+  baseURL: "https://your-service-name.onrender.com",
 });
+
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
-
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
-  }
-
+  if (token) req.headers.Authorization = `Bearer ${token}`;
   return req;
 });
 
